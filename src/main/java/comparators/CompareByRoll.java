@@ -1,12 +1,14 @@
 
-//Custom comparator class used to sort players depending on their last roll
-
 package comparators;
 
 import model.Player;
 
 import java.util.Comparator;
 
+/**
+ * Custom comparator class used to sort players depending on their last roll
+ * @author Ismail Feham
+ */
 public class CompareByRoll implements Comparator<Player> {
 
     @Override

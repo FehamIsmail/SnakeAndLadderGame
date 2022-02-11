@@ -1,10 +1,12 @@
 
-//Cases are the squares present on the game board
-
 package model;
 
 import java.util.ArrayList;
 
+/**
+ * Case class used to define the squares on the game board.
+ * @author Ismail Feham
+ */
 public class Case {
     //Boolean used to determine if this case is a head/tail of a ladder/snake
     //A case is flagged as "special" if the case has a destination, which means it is the head of a ladder/snake
@@ -15,12 +17,19 @@ public class Case {
     private int position;
     private static int counter = 0;
 
+    /**
+     * Case constructor
+     * Each case's position is incremented after each object creation.
+     */
     public Case() {
         this.position = counter;
         counter++;
     }
 
-    //Retrieves the absolute coordinates of this case
+    /**
+     * Retrieves the absolute coordinates of this case
+     * @return Coordinate object
+     */
     public Coordinate getCoordinates(){
         //Digits read from left to right, ex: 10 => firstDigit = 1, secondDigit = 0
         int firstDigit = getFirstDigit();
@@ -44,7 +53,11 @@ public class Case {
         return new Coordinate(x,y);
     }
 
-
+    /**
+     * Retrieves the first digit of this case's position.
+     * The first digit is the digit on the left of a two-digit number
+     * @return
+     */
     public int getFirstDigit(){
         double a = position/10;
         return (int)a;

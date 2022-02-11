@@ -8,6 +8,10 @@ import model.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * Class used to control the flow of the game. It is the class, which coordinates how the game will work.
+ * @author Ismail Feham
+ */
 public class LadderAndSnake {
 
     private boolean playerHasBeenRemoved = false;
@@ -26,9 +30,16 @@ public class LadderAndSnake {
     private ArrayList<Player> players = new ArrayList<>();
     private ArrayList<Player> winningPlayers = new ArrayList<>();
     private ArrayList<ArrayList<Player>> listOfDupedPlayers = new ArrayList<>();
-    //String used to create ladders and snakes, seperated by commas, first number is the head, second is the tail. 'P' marks the end of the list.
-    //For simplicity, I'll use XX as 100;
-     private final String GAME_SEQUENCE = "01-38,04-14,09-31,16-06,21-42,28-84,36-44,48-30,51-67,64-60,71-91,79-19,80-XX,93-68,95-24,97-76,98-78P";
+    /**
+     * String used to create ladders and snakes, seperated by commas, first number is the head, second is the tail. 'P' marks the end of the list.
+     * For simplicity, XX is considered as 100;
+     */
+    private final String GAME_SEQUENCE = "01-38,04-14,09-31,16-06,21-42,28-84,36-44,48-30,51-67,64-60,71-91,79-19,80-XX,93-68,95-24,97-76,98-78P";
+
+    /** LadderAndSnake's constructor
+     * @param numberOfPlayers number of players (between 2 and 4)
+     * @param controller GameController object
+     */
     public LadderAndSnake(int numberOfPlayers, GameController controller) {
         this.controller = controller;
         this.numberOfPlayers = numberOfPlayers;
@@ -37,6 +48,11 @@ public class LadderAndSnake {
         initializeCases();
     }
 
+    /**
+     * Creates cases each assigned in the array 'cases'.
+     * Cases are created and assigned in a 'S' pattern, which is how the players passes through the game board.
+     * Adds all the players in the case (0)
+     */
     public void initializeCases(){
         int counter = 0;
         for(int j = 0; j < (row); j++){
@@ -57,6 +73,15 @@ public class LadderAndSnake {
         startingCase.getListOfPlayers().addAll(players);
     }
 
+    /**
+     * Loops through the GAME_SEQUENCE String, if a starting position is equal to a case's position. The case is now
+     * 'special'. Assigns a destination to each 'special' case. Check Case class documentation for more information
+     * about special cases.
+     * @param c Case object
+     * @param counter int counter. Integer used to determine the ending condition of the while-loop
+     * @return boolean checks if the case's position coincides with the starting position of the GAME_SEQUENCE.
+     *         In other words, return true if the case is special.
+     */
     private boolean assignLaddersAndSnakes(Case c, int counter) {
         int index = 0, head, tail;
         while (counter != 0) {
@@ -82,11 +107,12 @@ public class LadderAndSnake {
         } else {
             return false;
         }
-
-
-
     }
 
+    /**
+     * Initializes all the players.
+     * Creates and places a player in the game's list of players and assigns a pawn to each player.
+     */
     private void initializePlayers(){
         for(int i = 0;i<numberOfPlayers;i++){
             Player p = new Player();
@@ -96,10 +122,17 @@ public class LadderAndSnake {
         }
     }
 
+    /**
+     * Rolls and returns a random value between 1-6 inclusively
+     * @return the random value (int)
+     */
     public int flipDice(){
         return (int)(Math.random()*30/5) + 1;
     }
 
+    /**
+     * Method used to start the game. Determines order and rolls for each pawn as long as the game is not finished.
+     */
     public void start(){
         //Calls the method to determine the order of playing
         determineOrder();
@@ -115,8 +148,10 @@ public class LadderAndSnake {
         controller.button_roll.setDisable(true);
     }
 
-
-    //Checks if this specific player has finished the game
+    /**
+     * Checks if this specific player has finished the game
+     * @param p Player object
+     */
     public void checkIfFinished(Player p) {
         if(p.getPosition() == 100) {
             p.setWinningPosition(winningPosition);
@@ -130,7 +165,11 @@ public class LadderAndSnake {
             }
         }
     }
-    //Checks if all the players have finished the game
+
+    /**
+     * Checks if all the players have finished the game
+     * @return boolean, returns true if all the players have finished the game
+     */
     public boolean checkIfFinished() {
         if (winningPosition == numberOfPlayers) {
             isFinished = true;
@@ -140,10 +179,13 @@ public class LadderAndSnake {
         return false;
     }
 
-    //Prints a message once a player has finished the game
+    /**
+     * Prints a message once a player has finished the game
+     * @param p Player object
+     */
     public void printFinishedPlayer(Player p){
         if(p.getPosition() == 100) {
-            controller.print(p.getName() + " has won " + getWinningPositionToString(winningPosition) + " place!", "orange");
+            controller.print(p.getName() + " has won " + getWinningPositionToString() + " place!", "orange");
             winningPosition++;
             if (winningPosition == numberOfPlayers) {
                 controller.print(players.get(0).getName() + " has finished last place", "orange");
@@ -151,7 +193,10 @@ public class LadderAndSnake {
         }
     }
 
-    //Rolls for each pawn in the player list
+    /**
+     * Rolls and moves each pawn present in the game's list of players.
+     * Note: the list of players will change everytime a player has finished the game.
+     */
     public void rollPawns(){
         for (int i = 0; i < players.size(); i++) {
             Player p = players.get(i);
@@ -182,7 +227,10 @@ public class LadderAndSnake {
         }
     }
 
-    //Updates the player's position, the case, and animates the pawn
+    /**
+     * Updates the player's position, the case, and animates the pawn
+     * @param p Player object
+     */
     private void movePawn(Player p) {
         int start = p.getPosition();
         findCase(p.getPosition()).getListOfPlayers().remove(p);
@@ -191,7 +239,11 @@ public class LadderAndSnake {
 
     }
 
-    //Checks if a player has landed on a special case
+    /**
+     * Checks if a player has landed on a special case
+     * @param p Player object
+     * @return true if the player has landed on a special case
+     */
     public boolean checkSpecialAnimation(Player p){
         Case c = findCase(p.getPosition());
         p.getPosition();
@@ -201,7 +253,12 @@ public class LadderAndSnake {
         }return false;
     }
 
-    //Waits the roll button to activate and roll the dice for a specific Player p
+    //
+
+    /**
+     * Waits the roll button to activate and roll the dice for a specific player
+     * @param p Player object
+     */
     public void rollForThisPlayer(Player p){
         if(!checkIfFinished()) {
             if (firstRoll || !isOrderDetermined() || (players.indexOf(p) == 0 && round == 1)) {
@@ -218,8 +275,17 @@ public class LadderAndSnake {
 
     }
 
-    //Method used to roll for all players, int start and int end determines what position the players are competing
-    //For ex: a list contains 2 players, rollForEachPlayer(list, 2, 3); means that these 2 players will compete for the third and fourth place
+    /**
+     * Method used to roll for all players, int start and int end determines what position the players are competing
+     * For ex: a list contains 2 players, rollForEachPlayer(list, 2, 3); means that these 2 players will compete for
+     * the third and fourth place.
+     * Note: Not to be confused with the method 'findDuplicates'. They both have the same parameters.
+     * This method will call the method 'findDuplicates' to find the players who have rolled the same dice number.
+     * @param list list of players. This parameter allows for this method to be recursive since a new lists can be
+     *             created from this method. As such, these new lists can now be used as a parameter to call this method.
+     * @param start the starting place the players are competing
+     * @param end the ending place the players are competing
+     */
     public void rollForEachPlayer(ArrayList<Player> list, int start, int end){
         if(!firstRoll && !isOrderDetermined()){
             controller.print("\nA tie was achieved between: ", "yellow");
@@ -237,6 +303,11 @@ public class LadderAndSnake {
         }
     }
 
+    /**
+     * Retrieves the next player present in the game's player list
+     * @param p Player object
+     * @return the retrieve Player object
+     */
     public Player findNextPlayer(Player p){
         int index = players.indexOf(p);
         if(index == players.size()-1){
@@ -246,7 +317,11 @@ public class LadderAndSnake {
         }
     }
 
-    //Retrieves a case given its position
+    /**
+     * Retrieves a case given its position.
+     * @param position int position of a case
+     * @return the Case object
+     */
     public Case findCase(int position){
         if(position == 0){
             return startingCase;
@@ -261,7 +336,10 @@ public class LadderAndSnake {
         return null;
     }
 
-    //Checks is the order is determined
+    /**
+     * Checks is the order is determined. The order is determined if each player's Integer order is non-null.
+     * @return true if the order has been determined
+     */
     public boolean isOrderDetermined(){
         boolean orderDetermined = true;
         for(Player p : players){
@@ -272,8 +350,16 @@ public class LadderAndSnake {
         return orderDetermined;
     }
 
-    //Method used to find the players who rolled the same and orders them.
-    //Used to determine the order of each player
+    //
+    //
+
+    /**
+     * Method used to find the players who rolled the same and orders them.
+     * Used to determine the order of each player
+     * @param list list of players
+     * @param start the starting place the players are competing
+     * @param end the ending place the players are competing
+     */
     public void findDuplicates(ArrayList<Player> list, int start, int end){
         Player previous = list.get(0);
         int previousRoll = 0;
@@ -334,8 +420,13 @@ public class LadderAndSnake {
         }
     }
 
-    //Converts a position to a String and returns it
-    public String getWinningPositionToString(int n){
+    //
+
+    /**
+     * Converts the winningPosition variable to a String and returns it
+     * @return the converted String object
+     */
+    public String getWinningPositionToString(){
         String s = "";
         switch(winningPosition){
             case 1:
@@ -351,7 +442,9 @@ public class LadderAndSnake {
         return s;
     }
 
-    //Prints the order of each player
+    /**
+     * Prints the order of each player
+     */
     public void printOrder(){
         sortByOrder();
         controller.print("\nReached final decision on order of playing: ", "yellow");
@@ -363,7 +456,9 @@ public class LadderAndSnake {
         controller.print("\n");
     }
 
-    //Prints the ending message once every player but one has finished the game
+    /**
+     * Prints the ending message once every player but one has finished the game
+     */
     public void printEndingMessage() {
         //Printing leaderboard
         controller.print("Leaderboard: ", "green");
@@ -376,10 +471,15 @@ public class LadderAndSnake {
 
     }
 
+    /**
+     * Sorts the players list by their order
+     */
     public void sortByOrder(){
         Collections.sort(players, new CompareByOrder());
     }
-
+    /**
+     * Calls the rollForEachPlayer method
+     */
     public void determineOrder(){
         //Rolls for all players
         rollForEachPlayer(players, 0, numberOfPlayers-1);

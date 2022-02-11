@@ -1,7 +1,10 @@
-//A simple class which has an x and y coordinate
 
 package model;
 
+/**
+ * A simple class, which has an x and y coordinate
+ * @author Ismail Feham
+ */
 public class Coordinate {
     private int x;
     private int y;

@@ -12,6 +12,11 @@ import model.Player;
 
 import java.util.ArrayList;
 
+/**
+ * Class used to control and animates the pawns
+ * Also handles what happens after an animation finishes
+ * @author Ismail Feham
+ */
 public class AnimationController {
      private LadderAndSnake game;
      private int shiftedX = 14;
@@ -21,6 +26,14 @@ public class AnimationController {
         this.game = game;
     }
 
+
+    /**
+     * Method used to animate a specific pawn
+     * @param p Player object to animate
+     * @param pawn the ImageView pawn, which belongs to the Player
+     * @param start integer of the starting case to animate
+     * @param end integer of the destination
+     */
     public void animatePawn(Player p, ImageView pawn, int start, int end){
         game.setAnimating(true);
         int pos = start;
@@ -70,10 +83,16 @@ public class AnimationController {
             }
         });
         sequentialTransition.play();
-
     }
 
 
+    /**
+     * Creates and returns a PathTransition object from a Path object.
+     * Initializes and sets default values for this PathTransition
+     * @param path Path object
+     * @param pawn ImageView paww, which belongs to an object. It will be the node to animate.
+     * @return PathTransition object
+     */
     public PathTransition createPathTransition(Path path, ImageView pawn){
         PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(0.6));
@@ -84,7 +103,16 @@ public class AnimationController {
         return pathTransition;
     }
 
-
+    /**
+     * Creates and returns a Path depending on its position and if the order has be reversed.
+     * The order reverses if the Player crosses the last case (100). As such, when a player lands on the case 100, the
+     * player will step back depending on the number of remaining rolls
+     * @param p Player object
+     * @param pawn ImageView pawn
+     * @param position int starting position
+     * @param reverseOrder boolean if the pawn's movement are to be reversed
+     * @return Path object
+     */
     public Path createPath(Player p, ImageView pawn, int position, boolean reverseOrder){
         boolean right = p.isRight();
         boolean up = p.isUp();
@@ -96,7 +124,7 @@ public class AnimationController {
         Coordinate coordinate = c.getCoordinates();
         int x = coordinate.getX();
         int y = coordinate.getY();
-        MoveTo move = createMoveTo(shiftedX, shiftedY, x, y);
+        MoveTo move = createMoveTo(x, y);
 
         arc = new ArcTo();
         arc.setRadiusX(50);
@@ -119,8 +147,14 @@ public class AnimationController {
         }
     }
 
+    /**
+     * A special animation is an animation played if the player lands on a special case. Look Case class documentation
+     * to know more about special cases. A special animation creates a custom PathTransition and plays it.
+     * @param p Player object
+     * @param destination int destination, Player's final position
+     */
     public void specialAnimation(Player p, int destination){
-         game.setAnimating(true);
+        game.setAnimating(true);
         Case start = game.findCase(p.getPosition());
         Case destinationCase = game.findCase(destination);
         Coordinate destinationCoordinates = destinationCase.getCoordinates();
@@ -129,7 +163,7 @@ public class AnimationController {
         Coordinate headCoordinates = start.getCoordinates();
         int x = headCoordinates.getX();
         int y = headCoordinates.getY();
-        MoveTo move = createMoveTo(shiftedX, shiftedY, x,y);
+        MoveTo move = createMoveTo(x,y);
         Path path = new Path();
         LineTo lineTo = new LineTo();
         lineTo.setX(x1-x);
@@ -161,7 +195,14 @@ public class AnimationController {
 
         p.setAbsolutePosition(destination);
     }
-    public MoveTo createMoveTo(int shiftedX, int shiftedY, int x, int y){
+
+    /**
+     * Creates and returns a MoveTo object used for normal and special animations.
+     * @param x destination's case x coordinate
+     * @param y destination's case y coordinate
+     * @return MoveTo object
+     */
+    public MoveTo createMoveTo(int x, int y){
         MoveTo move;
         move = new MoveTo(x+shiftedX,-(900-y)+shiftedY);
         move.setAbsolute(true);
