@@ -3,6 +3,7 @@ package game.snakeandladdergame;
 import animation_controller.AnimationController;
 import comparators.CompareByOrder;
 import comparators.CompareByRoll;
+import javafx.application.Platform;
 import model.*;
 
 import java.util.ArrayList;
@@ -14,6 +15,8 @@ import java.util.Collections;
  */
 public class LadderAndSnake {
 
+    private boolean oneWinnerOnly;
+    private ArrayList<Player> winningPlayers;
     private boolean playerHasBeenRemoved = false;
     private AnimationController animationController;
     private GameController controller;
@@ -24,28 +27,33 @@ public class LadderAndSnake {
     private int winningPosition = 1;
     private final int row = 10;
     private final int column = 10;
-    Case[][] cases = new Case[row][column];
-    Case startingCase = new Case();
+    private Case[][] cases = new Case[row][column];
+    private Case startingCase = new Case();
     private int numberOfPlayers;
     private ArrayList<Player> players = new ArrayList<>();
-    private ArrayList<Player> winningPlayers = new ArrayList<>();
     private ArrayList<ArrayList<Player>> listOfDupedPlayers = new ArrayList<>();
+
     /**
      * String used to create ladders and snakes, seperated by commas, first number is the head, second is the tail. 'P' marks the end of the list.
      * For simplicity, XX is considered as 100;
      */
-    private final String GAME_SEQUENCE = "01-38,04-14,09-31,16-06,21-42,28-84,36-44,48-30,51-67,64-60,71-91,79-19,80-XX,93-68,95-24,97-76,98-78P";
+//    private final String GAME_SEQUENCE = "01-38,04-14,09-31,16-06,21-42,28-84,36-44,48-30,51-67,64-60,71-91,79-19,80-XX,93-68,95-24,97-76,98-78P";
+
+    private final String GAME_SEQUENCE = "01-38,04-14,09-31,21-42,28-84,36-44,51-67,71-91,80-XXP";
 
     /** LadderAndSnake's constructor
      * @param numberOfPlayers number of players (between 2 and 4)
      * @param controller GameController object
      */
-    public LadderAndSnake(int numberOfPlayers, GameController controller) {
+    public LadderAndSnake(int numberOfPlayers, GameController controller, boolean oneWinnerOnly) {
         this.controller = controller;
         this.numberOfPlayers = numberOfPlayers;
+        this.oneWinnerOnly = oneWinnerOnly;
+        if(!oneWinnerOnly) winningPlayers = new ArrayList<>();
         this.animationController = new AnimationController(this);
         initializePlayers();
         initializeCases();
+        System.out.println(oneWinnerOnly);
     }
 
     /**
@@ -137,36 +145,86 @@ public class LadderAndSnake {
         //Calls the method to determine the order of playing
         determineOrder();
         //Keep rolling pawns as long as the game is not finished
-        while(!isFinished){
-            if(round == 1 || playerHasBeenRemoved){
-                controller.print("\nRound " + round + ": ", "green");
-                playerHasBeenRemoved = false;
-            }
-            rollPawns();
-            round++;
+        nextRound();
+
+    }
+
+    public void nextRound(){
+
+        playerHasBeenRemoved = false;
+        controller.print("\nRound " + round + ": ", "green");
+        rollPawns();
+        round++;
+        if(isFinished()){
+            controller.button_roll.setDisable(true);
         }
-        controller.button_roll.setDisable(true);
+    }
+
+    /**
+     * Rolls and moves each pawn present in the game's list of players.
+     * Note: the list of players will change everytime a player has finished the game.
+     */
+    public void rollPawns(){
+        for (int i = 0; i < players.size(); i++) {
+            Player p = players.get(i);
+            if(isFinished){
+                System.out.println("finished, stop rolling");
+                break;}
+            if(playerHasBeenRemoved){
+                while(players.indexOf(p)!=0){
+                    rollForThisPlayer(p);
+                    movePawn(p);
+                }
+                break;
+            }
+//            Player lastPlayer = null;
+//            if(i == 0 && round == 2){
+//                lastPlayer = players.get(players.size()-1);
+//                System.out.println("yo");
+//                System.out.println(!(lastPlayer.getLastRoll() == 1 && lastPlayer.getPosition() == 1));
+////                controller.button_roll.setDisable(!(lastPlayer.getLastRoll() == 1 && lastPlayer.getPosition() == 1));
+//            }
+//            else if(i > 0 && round == 1){
+//                lastPlayer = players.get(i-1);
+//                System.out.println("ye breuh");
+//                System.out.println(!(lastPlayer.getLastRoll() == 1 && lastPlayer.getPosition() == 1));
+////                controller.button_roll.setDisable(!(lastPlayer.getLastRoll() == 1 && lastPlayer.getPosition() == 1));
+//            }else{
+////                controller.button_roll.setDisable(true);
+//            }
+            rollForThisPlayer(p);
+            movePawn(p);
+
+        }
     }
 
     /**
      * Checks if this specific player has finished the game
      * @param p Player object
      */
-    public void checkIfFinished(Player p) {
-        if(p.getPosition() == 100) {
-            p.setWinningPosition(winningPosition);
-            players.remove(p);
-            winningPlayers.add(p);
-            p.getPawn().setVisible(false);
-
-            if (winningPosition == numberOfPlayers) {
+    public boolean checkIfThisPlayerIsFinished(Player p) {
+        if(p.getPosition() != 100) return false;
+        else{
+            if(oneWinnerOnly){
                 isFinished = true;
-                winningPlayers.add(players.get(0));
+                return true;
+            }else{
+                p.setWinningPosition(winningPosition);
+                players.remove(p);
+                winningPlayers.add(p);
+                p.getPawn().setVisible(false);
+                playerHasBeenRemoved = true;
+                if (winningPosition == numberOfPlayers) {
+                    isFinished = true;
+                    winningPlayers.add(players.get(0));
+                }
             }
+            return true;
         }
     }
 
     /**
+     * @deprecated
      * Checks if all the players have finished the game
      * @return boolean, returns true if all the players have finished the game
      */
@@ -185,47 +243,20 @@ public class LadderAndSnake {
      */
     public void printFinishedPlayer(Player p){
         if(p.getPosition() == 100) {
-            controller.print(p.getName() + " has won " + getWinningPositionToString() + " place!", "orange");
-            winningPosition++;
-            if (winningPosition == numberOfPlayers) {
-                controller.print(players.get(0).getName() + " has finished last place", "orange");
+            if (oneWinnerOnly) {
+                controller.print(p.getName() + " has won the game!\n", "orange");
+            } else {
+                controller.print(p.getName() + " has won " + getWinningPositionToString() + " place!", "orange");
+                winningPosition++;
+                if (winningPosition == numberOfPlayers) {
+                    controller.print("\n" + players.get(0).getName() + " has finished last place", "orange");
+                }
             }
+
         }
     }
 
-    /**
-     * Rolls and moves each pawn present in the game's list of players.
-     * Note: the list of players will change everytime a player has finished the game.
-     */
-    public void rollPawns(){
-        for (int i = 0; i < players.size(); i++) {
-            Player p = players.get(i);
-            if(checkIfFinished()){
-                System.out.println("finished, stop rolling");
-                break;}
-            if(playerHasBeenRemoved){
-                while(players.indexOf(p)!=0){
-                    controller.button_roll.setDisable(true);
-                    rollForThisPlayer(p);
-                    movePawn(p);
-                }
-                break;
-            }
-            Player lastPlayer = null;
-            if(i == 0 && round == 2){
-                lastPlayer = players.get(players.size()-1);
-                controller.button_roll.setDisable(!(lastPlayer.getLastRoll() == 1 && lastPlayer.getPosition() == 38));
-            }
-            else if(i > 0 && round == 1){
-                lastPlayer = players.get(i-1);
-                controller.button_roll.setDisable(!(lastPlayer.getLastRoll() == 1 && lastPlayer.getPosition() == 38));
-            }else{
-                controller.button_roll.setDisable(true);
-            }
-            rollForThisPlayer(p);
-            movePawn(p);
-        }
-    }
+
 
     /**
      * Updates the player's position, the case, and animates the pawn
@@ -253,14 +284,12 @@ public class LadderAndSnake {
         }return false;
     }
 
-    //
-
     /**
      * Waits the roll button to activate and roll the dice for a specific player
      * @param p Player object
      */
     public void rollForThisPlayer(Player p){
-        if(!checkIfFinished()) {
+        if(!isFinished) {
             if (firstRoll || !isOrderDetermined() || (players.indexOf(p) == 0 && round == 1)) {
                 controller.customPrintRolls(p);
             }
@@ -268,7 +297,12 @@ public class LadderAndSnake {
             if (!isAnimating) {
                 controller.button_roll.setDisable(false);
             }
-            controller.pause();
+//            if(Platform.isNestedLoopRunning()){
+//                System.out.println("ye nested loop");
+//                Platform.runLater(() -> controller.pause());
+//            }else{
+                controller.pause();
+//            }
             p.setLastRoll(controller.getRoll());
             controller.print((p.getName() + " has rolled " + p.getLastRoll()) + "\n", "#70f5ff");
         }
@@ -460,14 +494,19 @@ public class LadderAndSnake {
      * Prints the ending message once every player but one has finished the game
      */
     public void printEndingMessage() {
-        //Printing leaderboard
-        controller.print("Leaderboard: ", "green");
-        for (int i = 0; i < winningPlayers.size(); i++) {
-            Player p = winningPlayers.get(i);
-            controller.print(i+1 + ". " + p.getName());
+        if(oneWinnerOnly){
+            //Farewell Message
+            controller.print("\nThank you for playing!\n","orange");
+        }else {
+            //Printing leaderboard
+            controller.print("Leaderboard: ", "green");
+            for (int i = 0; i < winningPlayers.size(); i++) {
+                Player p = winningPlayers.get(i);
+                controller.print(i + 1 + ". " + p.getName());
+            }
+            //Farewell Message
+            controller.print("\nThank you for playing!\n", "orange");
         }
-        //Farewell Message
-        controller.print("\nThank you for playing!\n","orange");
 
     }
 
@@ -506,8 +545,16 @@ public class LadderAndSnake {
         return isFinished;
     }
 
+    public boolean isPlayerHasBeenRemoved() {
+        return playerHasBeenRemoved;
+    }
+
     public GameController getController() {
         return controller;
+    }
+
+    public boolean isOneWinnerOnly() {
+        return oneWinnerOnly;
     }
 }
 

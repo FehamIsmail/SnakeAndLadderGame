@@ -3,6 +3,7 @@ package animation_controller;
 import game.snakeandladdergame.LadderAndSnake;
 import javafx.animation.PathTransition;
 import javafx.animation.SequentialTransition;
+import javafx.application.Platform;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
@@ -25,7 +26,6 @@ public class AnimationController {
      public AnimationController(LadderAndSnake game) {
         this.game = game;
     }
-
 
     /**
      * Method used to animate a specific pawn
@@ -62,24 +62,19 @@ public class AnimationController {
                 }
             }
         }
-        for(PathTransition p1 : paths){
-            sequentialTransition.getChildren().add(p1);
+        if(paths.isEmpty()) game.getController().button_roll.setDisable(false);
+        else {
+            for (PathTransition p1 : paths) {
+                sequentialTransition.getChildren().add(p1);
+            }
+            game.getController().button_roll.setDisable(true);
         }
         sequentialTransition.setOnFinished(e -> {
-            game.checkIfFinished(p);
-            game.printFinishedPlayer(p);
-            if(!game.isFinished()){
-                game.getController().button_roll.setDisable(false);
-            }else{
-                game.printEndingMessage();
+            if(game.checkIfThisPlayerIsFinished(p)){
+                handleFinishedPlayer(p);
             }
-            if(!game.checkSpecialAnimation(p)){
-                if(game.getPlayers().indexOf(game.findNextPlayer(p)) == 0){
-                    game.getController().print("\nRound " + game.getRound() + ": ", "green");
-                }
-                if(!game.isFinished()){
-                    game.getController().customPrintRolls(game.findNextPlayer(p));
-                }
+            else if(!game.checkSpecialAnimation(p)){
+                nextMove(p);
             }
         });
         sequentialTransition.play();
@@ -176,24 +171,58 @@ public class AnimationController {
         if(p.getPosition() != 1){
             game.getController().button_roll.setDisable(true);
         }
+        System.out.println("special animation");
         pathTransition.setOnFinished(e -> {
-            game.checkIfFinished(p);
-            game.printFinishedPlayer(p);
-            if(!game.isFinished()){
-                game.getController().button_roll.setDisable(false);
+            if(game.checkIfThisPlayerIsFinished(p)){
+                handleFinishedPlayer(p);
             }else{
-                game.printEndingMessage();
+                nextMove(p);
             }
-            if(game.getPlayers().indexOf(game.findNextPlayer(p)) == 0){
-                if(!game.isFinished()){
-                    game.getController().print("\nRound " + game.getRound() + ": ", "green");
-                }
-            }
-            game.getController().customPrintRolls(game.findNextPlayer(p));
+
+//            System.out.println("special animation set on finished");
+//            if(game.checkIfThisPlayerIsFinished(p)){
+//                game.printFinishedPlayer(p);
+//                if(game.isFinished()) game.printEndingMessage();
+//            }else{
+//
+//            }
+//            game.printFinishedPlayer(p);
+//            if(!game.isFinished()){
+//                game.getController().button_roll.setDisable(false);
+//            }
+//            else{
+//                game.getController().button_roll.setDisable(true);
+//                game.printEndingMessage();
+//            }
+//            if(game.getPlayers().indexOf(game.findNextPlayer(p)) == 0){
+//                if(!game.isFinished()){
+//                    game.getController().print("\nRound " + game.getRound() + ": ", "green");
+//                }
+//            }
+//            if(!game.isFinished()){
+//                game.getController().customPrintRolls(game.findNextPlayer(p));
+//            }
         });
         pathTransition.play();
 
         p.setAbsolutePosition(destination);
+    }
+
+    private void handleFinishedPlayer(Player p){
+        game.printFinishedPlayer(p);
+        if(game.isFinished()) game.printEndingMessage();
+        else{
+
+            game.getController().button_roll.setDisable(false);
+        }
+    }
+
+    private void nextMove(Player p){
+        if (game.getPlayers().indexOf(game.findNextPlayer(p)) == 0) {
+            Platform.runLater(() -> game.nextRound());
+        }
+        Platform.runLater(() -> game.getController().customPrintRolls(game.findNextPlayer(p)));;
+        Platform.runLater(() -> game.getController().button_roll.setDisable(false));
     }
 
     /**

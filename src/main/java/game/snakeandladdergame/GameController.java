@@ -17,7 +17,6 @@ import model.CustomText;
 import model.Player;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Controller of the JavaFXML  game
@@ -125,7 +124,7 @@ public class GameController {
                 }else{
                     if(counter == 4){
                         print("\nYou have entered an invalid number 4 times","#e80000");
-                        print("The program will now exit in 3 seconds","#e80000");
+                        print("The program will now exit in 3 seconds\n","#e80000");
                         txtfield.setDisable(true);
                         button_start.setDisable(true);
                         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), e -> Platform.exit()));
@@ -201,11 +200,41 @@ public class GameController {
         scrollpane.vvalueProperty().bind(txtflow.heightProperty());
 
         //Retrieves and initializes the class LadderAndSnake
-        game = new LadderAndSnake(retrieveNumberOfPlayers(), this);
+        int numberOfPlayers = retrieveNumberOfPlayers();
+        boolean onlyOneWinner;
+        if(numberOfPlayers == 2) onlyOneWinner = true;
+        else{
+            onlyOneWinner = retrieveGameMode();
+        }
+        game = new LadderAndSnake(numberOfPlayers, this, onlyOneWinner);
         print(("Game is played by " + (game.getPlayers().size()) + " players"), "green");
         retrievePlayerNames();
 
         button_start.setDisable(false);
+    }
+
+    /**
+     * There will be two game modes available to the players:
+     *  - One winner only, meaning as soon as one player finishes the reaches the end of the game, the game will terminate.
+     *  - Multiple winners, as the name suggests, there can be multiple winners. Note: If the game is played with only 2
+     *  players. The game will automatically start with 'one winner only' game mode.
+     */
+    public boolean retrieveGameMode(){
+
+        print("Do you wish to have one only one winner or multiple winners?\n" +
+                "Press (1) for one winner only\n" +
+                "Press (2) for multiple winners");
+
+        while(true){
+            pause();
+            if(input.equals("1"))return true;
+            if(input.equals("2"))return false;
+            else{
+                print("\nYou have entered an invalid input", "#e80000");
+                print("Press (1) for one winner only\n" + "Press (2) for multiple winners");
+            }
+        }
+
     }
 
     /**
