@@ -1,12 +1,13 @@
 
-//Custom Text class, extending Text class
-//Used to print texts in right-hand side of the game (TextFlow)
-
 package model;
 
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 
+/**
+ * Custom Text class, extending Text class
+ * Used to print texts in right-hand side of the game (TextFlow)
+ */
 public class CustomText extends Text {
     public CustomText(String s) {
         super(s);

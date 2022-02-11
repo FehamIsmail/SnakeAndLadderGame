@@ -90,7 +90,7 @@ public class AnimationController {
      */
     public PathTransition createPathTransition(Path path, ImageView pawn){
         PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.seconds(0.6));
+        pathTransition.setDuration(Duration.seconds(0.05));
         pathTransition.setPath(path);
         pathTransition.setNode(pawn);
         pathTransition.setCycleCount(1);
@@ -167,58 +167,40 @@ public class AnimationController {
         path.getElements().addAll(move, lineTo);
         PathTransition pathTransition = createPathTransition(path, p.getPawn());
         int a = Math.abs(p.getPosition()-destination);
-        pathTransition.setDuration(Duration.seconds(Math.log(Math.abs(0.2*a+0.8))));
-        if(p.getPosition() != 1){
-            game.getController().button_roll.setDisable(true);
-        }
-        System.out.println("special animation");
+        pathTransition.setDuration(Duration.seconds(0.1*(Math.log(Math.abs(0.2*a+0.8)))));
         pathTransition.setOnFinished(e -> {
             if(game.checkIfThisPlayerIsFinished(p)){
                 handleFinishedPlayer(p);
             }else{
                 nextMove(p);
             }
-
-//            System.out.println("special animation set on finished");
-//            if(game.checkIfThisPlayerIsFinished(p)){
-//                game.printFinishedPlayer(p);
-//                if(game.isFinished()) game.printEndingMessage();
-//            }else{
-//
-//            }
-//            game.printFinishedPlayer(p);
-//            if(!game.isFinished()){
-//                game.getController().button_roll.setDisable(false);
-//            }
-//            else{
-//                game.getController().button_roll.setDisable(true);
-//                game.printEndingMessage();
-//            }
-//            if(game.getPlayers().indexOf(game.findNextPlayer(p)) == 0){
-//                if(!game.isFinished()){
-//                    game.getController().print("\nRound " + game.getRound() + ": ", "green");
-//                }
-//            }
-//            if(!game.isFinished()){
-//                game.getController().customPrintRolls(game.findNextPlayer(p));
-//            }
         });
+        game.getController().button_roll.setDisable(true);
         pathTransition.play();
 
         p.setAbsolutePosition(destination);
     }
 
+    /**
+     * Method executed if the player has finished in the winning case. Finishes the game if it is finished or continue
+     * with the next player.
+     * @param p Player object
+     */
     private void handleFinishedPlayer(Player p){
         game.printFinishedPlayer(p);
         if(game.isFinished()) game.printEndingMessage();
         else{
-
-            game.getController().button_roll.setDisable(false);
+            nextMove(p);
         }
     }
 
+    /**
+     * Code executed to roll for the next player. Prints whose turn is to roll and starts a new round if it is finished.
+     * @param p Player object
+     */
     private void nextMove(Player p){
-        if (game.getPlayers().indexOf(game.findNextPlayer(p)) == 0) {
+//        if (game.getPlayers().indexOf(game.findNextPlayer(p)) == 0) {
+        if (p.getOrder() > game.findNextPlayer(p).getOrder()) {
             Platform.runLater(() -> game.nextRound());
         }
         Platform.runLater(() -> game.getController().customPrintRolls(game.findNextPlayer(p)));;

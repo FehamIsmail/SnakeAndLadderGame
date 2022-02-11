@@ -323,29 +323,9 @@ public class GameController {
     }
 
     /**
-     * Changes the class' instance variable 'paused'
-     * @param paused
+     * Retrieves the rolled dice number
+     * @return integer between 1 and 6 inclusively
      */
-    public void setPaused(boolean paused) {
-        isPaused = paused;
-    }
-
-    public String getInput() {
-        return input;
-    }
-
-    public void setInput(String input) {
-        this.input = input;
-    }
-
-    public Object getPAUSE_KEY() {
-        return PAUSE_KEY;
-    }
-
-    public boolean isPaused() {
-        return isPaused;
-    }
-
     public int getRoll() {
         return roll;
     }

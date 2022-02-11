@@ -14,7 +14,7 @@ public class Player{
 
     private ImageView pawn;  //Pawn's image
     private int position;
-    private int winningPosition;
+    private int winningPosition = 0;
     private int lastRoll;
     private Integer order; //Variable used to know the order of a player
     private String name;

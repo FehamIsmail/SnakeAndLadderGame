@@ -7,12 +7,15 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Main class of this application
+ * Initializes the view and the controller of the JAVAFXML application
+ */
 public class GameMain extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GameMain.class.getResource("game-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1400, 1026);
-
 
         stage.setResizable(false);
         stage.setTitle("Snake and Ladder Game");

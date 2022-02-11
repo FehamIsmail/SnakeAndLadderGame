@@ -8,8 +8,10 @@ import java.util.ArrayList;
  * @author Ismail Feham
  */
 public class Case {
-    //Boolean used to determine if this case is a head/tail of a ladder/snake
-    //A case is flagged as "special" if the case has a destination, which means it is the head of a ladder/snake
+    /**
+     * Boolean used to determine if this case is a head/tail of a ladder/snake
+     * A case is flagged as "special" if the case has a destination, which means it is the head of a ladder/snake
+     */
     private boolean isSpecial;
     private int destination;
 
