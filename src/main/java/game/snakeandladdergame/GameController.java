@@ -218,6 +218,7 @@ public class GameController {
      *  - One winner only, meaning as soon as one player finishes the reaches the end of the game, the game will terminate.
      *  - Multiple winners, as the name suggests, there can be multiple winners. Note: If the game is played with only 2
      *  players. The game will automatically start with 'one winner only' game mode.
+     * @return boolean, true if one winner only, false for multiple winners
      */
     public boolean retrieveGameMode(){
 

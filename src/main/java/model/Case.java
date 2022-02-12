@@ -58,7 +58,7 @@ public class Case {
     /**
      * Retrieves the first digit of this case's position.
      * The first digit is the digit on the left of a two-digit number
-     * @return
+     * @return first digit
      */
     public int getFirstDigit(){
         double a = position/10;

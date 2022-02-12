@@ -7,6 +7,7 @@ import javafx.scene.text.Text;
 /**
  * Custom Text class, extending Text class
  * Used to print texts in right-hand side of the game (TextFlow)
+ * @author Ismail Feham
  */
 public class CustomText extends Text {
     public CustomText(String s) {

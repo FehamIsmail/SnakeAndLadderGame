@@ -37,7 +37,7 @@ public class Player{
 
     /**
      * Updates the player's position
-     * @param n
+     * @param n integer position to increment
      */
     public void move(int n) {
         setPosition(n);
@@ -57,7 +57,7 @@ public class Player{
     /**
      * @param o Object o, which will be compared to this player.
      *          Object o will get explicitly cast to a Player object
-     * @return
+     * @return true if they are equal, false otherwise
      */
     @Override
     public boolean equals(Object o) {
@@ -90,6 +90,7 @@ public class Player{
 
     /**
      * Sets position and updates direction
+     * @param position int position
      */
     public void setPosition(int position) {
         this.position += position;

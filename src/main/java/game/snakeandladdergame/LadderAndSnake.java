@@ -42,6 +42,7 @@ public class LadderAndSnake {
     /** LadderAndSnake's constructor
      * @param numberOfPlayers number of players (between 2 and 4)
      * @param controller GameController object
+     * @param oneWinnerOnly game mode (true: one winner only, false: multiple winners)
      */
     public LadderAndSnake(int numberOfPlayers, GameController controller, boolean oneWinnerOnly) {
         this.controller = controller;
@@ -170,7 +171,6 @@ public class LadderAndSnake {
             if(p.getWinningPosition() == 0){
                 if(isFinished) break;
                 else {
-                    System.out.println("rolling for: " + p.getName());
                     rollForThisPlayer(p);
                     movePawn(p);
                 }
@@ -181,6 +181,7 @@ public class LadderAndSnake {
     /**
      * Checks if this specific player has finished the game
      * @param p Player object
+     * @return true if the player is finished, false otherwise
      */
     public boolean checkIfThisPlayerIsFinished(Player p) {
         if(p.getPosition() != 100) return false;

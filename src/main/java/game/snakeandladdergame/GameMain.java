@@ -10,6 +10,7 @@ import java.io.IOException;
 /**
  * Main class of this application
  * Initializes the view and the controller of the JAVAFXML application
+ * @author Ismail Feham
  */
 public class GameMain extends Application {
     @Override

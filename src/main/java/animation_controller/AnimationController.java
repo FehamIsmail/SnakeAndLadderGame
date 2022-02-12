@@ -90,7 +90,7 @@ public class AnimationController {
      */
     public PathTransition createPathTransition(Path path, ImageView pawn){
         PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.seconds(0.05));
+        pathTransition.setDuration(Duration.seconds(0.6));
         pathTransition.setPath(path);
         pathTransition.setNode(pawn);
         pathTransition.setCycleCount(1);
@@ -167,7 +167,7 @@ public class AnimationController {
         path.getElements().addAll(move, lineTo);
         PathTransition pathTransition = createPathTransition(path, p.getPawn());
         int a = Math.abs(p.getPosition()-destination);
-        pathTransition.setDuration(Duration.seconds(0.1*(Math.log(Math.abs(0.2*a+0.8)))));
+        pathTransition.setDuration(Duration.seconds((Math.log(Math.abs(0.2*a+0.8)))));
         pathTransition.setOnFinished(e -> {
             if(game.checkIfThisPlayerIsFinished(p)){
                 handleFinishedPlayer(p);
